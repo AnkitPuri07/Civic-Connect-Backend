@@ -1,5 +1,6 @@
 package com.ankit.civicconnectbackend.services;
 import com.ankit.civicconnectbackend.enums.ComplaintStatus;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.ankit.civicconnectbackend.dto.ComplaintRequest;
@@ -9,6 +10,7 @@ import com.ankit.civicconnectbackend.repos.ComplaintRepo;
 import com.ankit.civicconnectbackend.repos.UserRepo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -62,15 +64,15 @@ public class ComplaintService {
                 SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();
-        System.out.println("MY COMPLAINTS ENDPOINT HIT");
         User user = userRepo.findByEmail(email);
 
 
         return complaintRepo.findByUserId(user.getId());
     }
-    public ResponseEntity<Complaint> updateComplaint(
+
+
+    public Complaint updateComplaint(
             Integer complaintId,
-            Integer userId,
             ComplaintRequest complaintRequest
     ) {
 
@@ -78,32 +80,72 @@ public class ComplaintService {
                 .orElseThrow(() ->
                         new RuntimeException("Complaint not found"));
 
-        if (!complaint.getUser().getId().equals(userId)) {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepo.findByEmail(email);
+
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        if (!complaint.getUser().getId().equals(user.getId())) {
             throw new RuntimeException(
-                    "You cannot update this complaint");
+                    "You cannot update this complaint"
+            );
         }
 
         complaint.setComplaintTitle(
-                complaintRequest.getComplaintTitle());
+                complaintRequest.getComplaintTitle()
+        );
 
         complaint.setComplaintDescription(
-                complaintRequest.getComplaintDescription());
+                complaintRequest.getComplaintDescription()
+        );
 
         complaint.setComplaintCategory(
-                complaintRequest.getComplaintCategory());
+                complaintRequest.getComplaintCategory()
+        );
 
-        complaintRepo.save(complaint);
+        complaint.setComplaintLocation(
+                complaintRequest.getComplaintLocation()
+        );
 
-        return ResponseEntity.ok(complaint);
+        return complaintRepo.save(complaint);
     }
 
-    public ResponseEntity<String> deleteComplaint(Integer complaintId, Integer userId) {
+    public String deleteComplaint(Integer complaintId) {
+
         Complaint complaint = complaintRepo.findById(complaintId)
-                .orElseThrow(() -> new RuntimeException("Complaint not found"));
-        if (!complaint.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You cannot delete this complaint");
+                .orElseThrow(() ->
+                        new RuntimeException("Complaint not found"));
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepo.findByEmail(email);
+
+        if (user == null) {
+            throw new RuntimeException("User not found");
         }
+
+        if (!complaint.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You cannot delete this complaint"
+            );
+        }
+
         complaintRepo.delete(complaint);
-        return ResponseEntity.ok("Complaint deleted successfully");
+
+        return "Complaint deleted successfully";
+    }
+
+    public ResponseEntity<List<Complaint>> getComplaintsByStatus(ComplaintStatus status) {
+        return ResponseEntity.ok(complaintRepo.findByComplaintStatus(status));
     }
 }

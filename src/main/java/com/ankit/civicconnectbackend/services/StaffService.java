@@ -88,4 +88,8 @@ public class StaffService {
                 complaintRepo.save(complaint)
         );
     }
+
+    public List<Staff> getEveryStaff() {
+        return staffRepo.findAll();
+    }
 }

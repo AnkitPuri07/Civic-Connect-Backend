@@ -34,31 +34,26 @@ public ResponseEntity<List<Complaint>> findByUserId() {
     );
 }
 
-@PutMapping("/{complaintId}/{userId}")
-public ResponseEntity<Complaint> updateComplaint(
-        @PathVariable Integer complaintId,
-        @PathVariable Integer userId,
-        @Valid
-        @RequestBody ComplaintRequest complaintRequest
-) {
+    @PutMapping("/{complaintId}")
+    public ResponseEntity<Complaint> updateComplaint(
+            @PathVariable Integer complaintId,
+            @Valid @RequestBody ComplaintRequest complaintRequest
+    ) {
 
-    return complaintService.updateComplaint(
-            complaintId,
-            userId,
-            complaintRequest
-    );
-}
+        return ResponseEntity.ok(
+                complaintService.updateComplaint(
+                        complaintId,
+                        complaintRequest
+                )
+        );
+    }
 
-@DeleteMapping("/{complaintId}/user/{userId}")
-public ResponseEntity<String> deleteComplaint(
-        @PathVariable Integer complaintId,
-        @PathVariable Integer userId
-) {
-
-    return complaintService.deleteComplaint(
-            complaintId,
-            userId
-
-    );
-}
+    @DeleteMapping("/{complaintId}")
+    public ResponseEntity<String> deleteComplaint(
+            @PathVariable Integer complaintId
+    ) {
+        return ResponseEntity.ok(
+                complaintService.deleteComplaint(complaintId)
+        );
+    }
 }

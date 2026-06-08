@@ -32,14 +32,6 @@ public class AdminService {
         this.jwtUtil = jwtUtil;
     }
 
-    public ResponseEntity<Admin> createAdmin(Admin admin) {
-        String encodedPassword = passwordEncoder.encode(admin.getAdminPassword());
-        admin.setAdminPassword(encodedPassword);
-        return ResponseEntity.ok(adminRepo.save(admin));
-    }
-
-
-
     public String loginAdmin(LoginRequest loginRequest) {
         Admin admin = adminRepo.findByAdminEmail(loginRequest.getEmail());
         if (admin == null) {
@@ -59,6 +51,7 @@ public class AdminService {
 
 
     public ResponseEntity<List<Complaint>> getAllComplaints() {
+
         return ResponseEntity.ok(complaintRepo.findAll());
     }
 
