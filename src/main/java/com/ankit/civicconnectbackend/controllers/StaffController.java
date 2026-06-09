@@ -29,12 +29,14 @@ public ResponseEntity<Staff> registerStaff(
     return staffService.createStaff(staff);
 }
 
-@PostMapping("/login")
-public ResponseEntity<?> loginStaff(
-        @Valid
-        @RequestBody LoginRequest loginRequest) {
-    return ResponseEntity.ok(Map.of("token",staffService.loginStaffByEmail(loginRequest))) ;
-}
+    @PostMapping("/login")
+    public ResponseEntity<?> login(
+            @RequestBody LoginRequest request) {
+
+        return ResponseEntity.ok(
+                staffService.loginStaffByEmail(request)
+        );
+    }
 
 @GetMapping("/{staffId}/assignedComplaints")
 public ResponseEntity<List<Complaint>> getComplaintsByStaffId(@PathVariable int staffId) {

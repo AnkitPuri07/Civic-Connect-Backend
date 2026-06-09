@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StaffService {
@@ -36,17 +38,28 @@ public class StaffService {
         return ResponseEntity.ok(staffRepo.save(staff));
     }
 
-    public String loginStaffByEmail(LoginRequest loginRequest) {
+    public Map<String, Object> loginStaffByEmail(LoginRequest loginRequest) {
+
         Staff staff = staffRepo.findByEmail(loginRequest.getEmail());
-        if(staff==null){
-            throw new RuntimeException(
-                    "Invalid email or password"
-            );        }
-        if(!passwordEncoder.matches(loginRequest.getPassword(),staff.getPassword())){
-            throw new RuntimeException(
-                    "Invalid email or password"
-            );         }
-        return jwtUtil.generateToken(staff.getEmail());
+
+        if (staff == null) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        if (!passwordEncoder.matches(
+                loginRequest.getPassword(),
+                staff.getPassword())) {
+
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        String token = jwtUtil.generateToken(staff.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("staffId", staff.getId());
+
+        return response;
     }
 
     public ResponseEntity<List<Complaint>> getComplaintsByStaffId(int staffId) {
