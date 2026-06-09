@@ -1,4 +1,4 @@
-package com.ankit.civicconnectbackend.config;
+package com.ankit.civicconnectbackend.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,14 +12,16 @@ import java.util.List;
 public class CorsConfig {
 
     @Bean
-    public CorsConfigurationSource
-    corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration =
                 new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-                List.of("http://localhost:3000")
+                List.of(
+                        "http://localhost:3000",
+                        "https://civic-connect-nu-navy.vercel.app"
+                )
         );
 
         configuration.setAllowedMethods(
@@ -27,7 +29,8 @@ public class CorsConfig {
                         "GET",
                         "POST",
                         "PUT",
-                        "DELETE"
+                        "DELETE",
+                        "OPTIONS"
                 )
         );
 
